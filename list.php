@@ -5,29 +5,34 @@
 <articles>
 <?php
 	$args = array(
-		'post_type'			=> 'post',
+		'post_type'		=> 'post',
 		'posts_per_page'	=> 50,
-		'orderby'			=> 'modified',
-    	'order'				=> 'DESC',
+		'orderby'		=> 'modified',
+    		'order'			=> 'DESC',
 	);
+	$tags_array = ['linetoday'];	//LINE TODAY 標籤
 	if (!empty($wp->query_vars['category'])) {
 		$args['category_name'] = $wp->query_vars['category'];
 	}
 	$the_query = new WP_Query( $args ); $i=0;
 	while ( $the_query->have_posts() ) : $the_query->the_post();
 
-		$feat_id			= get_post_thumbnail_id(get_the_id());
-		$feat_og_id		= get_post_meta( get_the_id(), '_yoast_wpseo_opengraph-image-id', true );
-		$feat_line_id = ($feat_og_id) ? $feat_og_id : $feat_id;
-		$feat_image		= wp_get_attachment_url($feat_line_id);
-		$categories		= get_the_category();
-		if ( ! empty( $categories ) ) {
-			$category = esc_html( $categories[0]->name );
-		}
-		if($i==0) {
-			echo '<UUID>post-' . get_the_id() . '-' . get_the_modified_time('U', get_the_id()) . '</UUID>';
-			echo '<time>' . get_post_time('U', true) . '000</time>';
-		}
+		//取得貼文的標籤
+		foreach (wp_get_post_tags(get_the_id()) as $key => $row) {
+			if (in_array(strtolower($row->name), $tags_array)) {
+
+				$feat_id		= get_post_thumbnail_id(get_the_id());
+				$feat_og_id		= get_post_meta( get_the_id(), '_yoast_wpseo_opengraph-image-id', true );
+				$feat_line_id = ($feat_og_id) ? $feat_og_id : $feat_id;
+				$feat_image		= wp_get_attachment_url($feat_line_id);
+				$categories		= get_the_category();
+				if ( ! empty( $categories ) ) {
+					$category = esc_html( $categories[0]->name );
+				}
+				if($i==0) {
+					echo '<UUID>post-' . get_the_id() . '-' . get_the_modified_time('U', get_the_id()) . '</UUID>';
+					echo '<time>' . get_post_time('U', true) . '000</time>';
+				}
 ?>
 	<article>
 		<ID><?php echo get_the_id(); ?></ID>
@@ -97,5 +102,5 @@
 		<author><?php echo get_bloginfo( 'name' ); ?></author>
 		<sourceUrl><?php echo $post_link; ?></sourceUrl>
 	</article>
-	<?php $i++; endwhile; wp_reset_postdata(); ?>
+	<?php $i++; }}endwhile; wp_reset_postdata(); ?>
 </articles>
